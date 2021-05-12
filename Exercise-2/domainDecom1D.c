@@ -31,18 +31,18 @@ int main(int argc, char *argv[]){
     // need to communicate and fill ghost cells f[0] and f[nxn_loc-1]
     // communicate ghost cells
 
-		int next_process = (size + rank + 1) % size;
-		int prev_process = (size + rank - 1) % size;
+    int next_process = (size + rank + 1) % size;
+    int prev_process = (size + rank - 1) % size;
 		
-		// Send first ghost cell back to previous process
-		MPI_Send(&f[2], 1, MPI_DOUBLE, prev_process, 0, MPI_COMM_WORLD);		
-		// Recevive last ghost cell from next process
-		MPI_Recv(&f[nxn_loc-1], 1, MPI_DOUBLE, next_process, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
+    // Send first ghost cell back to previous process
+    MPI_Send(&f[2], 1, MPI_DOUBLE, prev_process, 0, MPI_COMM_WORLD);		
+    // Recevive last ghost cell from next process
+    MPI_Recv(&f[nxn_loc-1], 1, MPI_DOUBLE, next_process, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
 
-		// Send last ghost cell forward to next process
-		MPI_Send(&f[nxn_loc-3], 1, MPI_DOUBLE, next_process, 0, MPI_COMM_WORLD);
-		// Receive last ghost cell from previous process
-		MPI_Recv(&f[0], 1, MPI_DOUBLE, prev_process, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    // Send last ghost cell forward to next process
+    MPI_Send(&f[nxn_loc-3], 1, MPI_DOUBLE, next_process, 0, MPI_COMM_WORLD);
+    // Receive last ghost cell from previous process
+    MPI_Recv(&f[0], 1, MPI_DOUBLE, prev_process, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		
     // calculate first order derivative using central difference
     // here we need to correct value of the ghost cells!
