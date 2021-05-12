@@ -40,29 +40,19 @@ int main(int argc, char* argv[])
     }
 
     start = MPI_Wtime();
-    if (rank != 0) {
-			  MPI_Request request;
-        MPI_Isend(&count, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &request);
-    } else {
-        MPI_Request requests[size-1];
-        int data[size-1];
-        for (int i = 1; i < size; i++) {
-	          MPI_Irecv(&data[i-1], 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &requests[i-1]);
-        }
 
-	      MPI_Waitall(size - 1, requests, MPI_STATUSES_IGNORE);
-	
-        for (int i = 0; i < size - 1; i++)
-            count += data[i];	
+		int total_count = 0;
+    MPI_Reduce(&count, &total_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-        // Estimate Pi and display the result
-        pi = ((double)count / (double)(max_iter * size)) * 4.0;
+    // Estimate Pi and display the result
+		if (rank == 0) {
+        pi = ((double)total_count / (double)(max_iter * size)) * 4.0;
     
         double time = MPI_Wtime() - start;    	
         printf("The result is %f\n", pi);
-        printf("Execution time: %f\n", time);
-    }    
-
+        printf("Execution time: %f\n", time);    
+    }
+    
     MPI_Finalize();
     return 0;
 }
