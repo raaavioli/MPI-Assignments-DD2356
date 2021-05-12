@@ -49,17 +49,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    // Warm up
-    for (int i = 0; i < senders; i++) {
-        int o_count;
-        MPI_Recv(&o_count, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    }
-
-    if (rank != 0) {
-        MPI_Send(&count, 1, MPI_INT, target, 0, MPI_COMM_WORLD);
-    }
-    // Warm up done
-
     start = MPI_Wtime();
     for (int i = 0; i < senders; i++) {
         int sender = rank + (1 << i);

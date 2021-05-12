@@ -40,20 +40,22 @@ int main(int argc, char* argv[])
     }
 
     start = MPI_Wtime();
+    MPI_Request send_request;
+    MPI_Request recv_requests[size - 1];
     if (rank != 0) {
-			  MPI_Request request;
-        MPI_Isend(&count, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &request);
+        MPI_Isend(&count, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &send_request);
+	MPI_Wait(&send_request, MPI_STATUSES_IGNORE);
     } else {
         MPI_Request requests[size-1];
         int data[size-1];
         for (int i = 1; i < size; i++) {
-	          MPI_Irecv(&data[i-1], 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &requests[i-1]);
+	          MPI_Irecv(&data[i-1], 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &recv_requests[i - 1]);
         }
 
-	      MPI_Waitall(size - 1, requests, MPI_STATUSES_IGNORE);
-	
-        for (int i = 0; i < size - 1; i++)
-            count += data[i];	
+    	MPI_Waitall(size - 1, recv_requests, MPI_STATUSES_IGNORE);
+        
+	for (int i = 0; i < size - 1; i++)
+            count += data[i];
 
         // Estimate Pi and display the result
         pi = ((double)count / (double)(max_iter * size)) * 4.0;
